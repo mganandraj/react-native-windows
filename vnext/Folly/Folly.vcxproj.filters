@@ -28,6 +28,27 @@
     <Filter Include="Source Files\portability">
       <UniqueIdentifier>{9ad1fbe7-56fb-40d8-b0a2-ac0d6d0799e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="minfutureimpl">
+      <UniqueIdentifier>{36974fcd-d3b8-4487-9608-93cba3b5a714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\detail">
+      <UniqueIdentifier>{2f8b29c5-b67a-43b7-9baf-a438a49e7e5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\executors">
+      <UniqueIdentifier>{e71e2d8c-f110-4abf-ad32-0284ba1250fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\synchronization">
+      <UniqueIdentifier>{e4eab2dd-4dc5-4a3e-acc0-13f0fee4c830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="minfutureimpl\folly">
+      <UniqueIdentifier>{ea66c64e-826f-4558-91ee-65f3f6709d42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="minfutureimpl\folly\futures">
+      <UniqueIdentifier>{8796d585-0029-4eeb-b20c-058f5fbcbf47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="minfutureimpl\folly\futures\detail">
+      <UniqueIdentifier>{067097f5-98ba-4acd-9e60-cb3c7f8f7d73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(FollyDir)\folly\lang\SafeAssert.cpp">
@@ -79,6 +100,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="$(FollyDir)\folly\detail/AsyncTrace.cpp">
+      <Filter>Source Files\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly/lang/CString.cpp">
+      <Filter>Source Files\lang</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly\ExceptionWrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly\Executor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly\executors/ExecutorWithPriority.cpp">
+      <Filter>Source Files\executors</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly\executors/InlineExecutor.cpp">
+      <Filter>Source Files\executors</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly/synchronization\SanitizeThread.cpp">
+      <Filter>Source Files\synchronization</Filter>
+    </ClCompile>
+    <ClCompile Include="$(FollyDir)\folly\Try.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(FollyDir)\folly\portability\Asm.h">
@@ -532,6 +577,21 @@
       <Filter>Header Files\detail</Filter>
     </ClInclude>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\Future.h">
+      <Filter>minfutureimpl\folly\futures</Filter>
+    </ClInclude>
+    <ClInclude Include="minfutureimpl\folly\futures\future-inl.h">
+      <Filter>minfutureimpl\folly\futures</Filter>
+    </ClInclude>
+    <ClInclude Include="minfutureimpl\folly\futures\Promise.h">
+      <Filter>minfutureimpl\folly\futures</Filter>
+    </ClInclude>
+    <ClInclude Include="minfutureimpl\folly\futures\Promise-inl.h">
+      <Filter>minfutureimpl\folly\futures</Filter>
+    </ClInclude>
+    <ClInclude Include="minfutureimpl\folly\futures\detail\Core.h">
+      <Filter>minfutureimpl\folly\futures\detail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Folly.natvis" />

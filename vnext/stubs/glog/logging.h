@@ -14,6 +14,12 @@
 #define DCHECK(b) !(b) && GlogStub::LogMessageFatal{}.stream()
 
 #ifdef DEBUG
+#define DCHECK_LT(v1, v2) CHECK((v1) < (v2))
+#else
+#define DCHECK_LT(v1, v2)
+#endif
+
+#ifdef DEBUG
 #define DCHECK_GT(v1, v2) CHECK((v1) > (v2))
 #else
 #define DCHECK_GT(v1, v2)
@@ -31,10 +37,18 @@
 #define DCHECK_GE(v1, v2)
 #endif
 
+#define CHECK_EQ(v1, v2) CHECK((v1) == (v2))
+
 #ifdef DEBUG
 #define DCHECK_EQ(v1, v2) CHECK((v1) == (v2))
 #else
 #define DCHECK_EQ(v1, v2)
+#endif
+
+#ifdef DEBUG
+#define DCHECK_NE(v1, v2) CHECK((v1) != (v2))
+#else
+#define DCHECK_NE(v1, v2)
 #endif
 
 namespace GlogStub {
@@ -68,7 +82,11 @@ inline std::ostream &GetNullLog() noexcept {
   return nullStream;
 }
 
-#define LOG(b) GlogStub::GetNullLog()
+#define ATTRIBUTE_NORETURN __declspec(noreturn)
+
+inline ATTRIBUTE_NORETURN std::ostream &Fail() noexcept {
+  std::abort();
+}
 
 typedef int LogSeverity;
 inline void FlushLogFiles(LogSeverity min_severity) {}
@@ -76,6 +94,14 @@ inline void FlushLogFiles(LogSeverity min_severity) {}
 #define google GlogStub
 static const int INFO = 1;
 
-#endif
+#define LOG(severity) GLOG_##severity
 
+#define GLOG_INFO GlogStub::GetNullLog()
+#define GLOG_WARNING GlogStub::GetNullLog()
+#define GLOG_ERROR GlogStub::GetNullLog()
+#define GLOG_FATAL GlogStub::Fail()
+#define GLOG_DFATAL GlogStub::Fail()
+
+#define LOG_FIRST_N(severity, n) GlogStub::GetNullLog()
+#endif
 } // namespace GlogStub

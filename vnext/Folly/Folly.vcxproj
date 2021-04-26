@@ -73,6 +73,17 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(FollyDir)\folly\ExceptionWrapper.cpp" DisableSpecificWarnings="4541;%(DisableSpecificWarnings)" />
+    <ClCompile Include="$(FollyDir)\folly\Executor.cpp" />
+    <ClCompile Include="$(FollyDir)\folly\ExceptionString.cpp" />
+    <ClCompile Include="$(FollyDir)\folly\Try.cpp" DisableSpecificWarnings="4541;%(DisableSpecificWarnings)" />
+    <ClCompile Include="$(FollyDir)\folly\detail/AsyncTrace.cpp" />
+    <ClCompile Include="$(FollyDir)\folly\executors/InlineExecutor.cpp" />
+    <ClCompile Include="$(FollyDir)\folly\executors/ExecutorWithPriority.cpp" />
+    <ClCompile Include="$(FollyDir)\folly/synchronization\SanitizeThread.cpp" />
+    <ClCompile Include="$(FollyDir)\folly/lang/CString.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="$(FollyDir)\folly\AtomicBitSet.h" />
     <ClInclude Include="$(FollyDir)\folly\AtomicHashArray-inl.h" />
     <ClInclude Include="$(FollyDir)\folly\AtomicHashArray.h" />
@@ -223,6 +234,11 @@
     <ClInclude Include="$(FollyDir)\folly\Uri-inl.h" />
     <ClInclude Include="$(FollyDir)\folly\Uri.h" />
     <ClInclude Include="$(FollyDir)\folly\Varint.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\detail\Core.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\future-inl.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\Future.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\Promise-inl.h" />
+    <ClInclude Include="minfutureimpl\folly\futures\Promise.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -256,7 +272,7 @@
       <AdditionalIncludeDirectories>$(ReactNativeWindowsDir)stubs;$(FollyDir);$(FmtDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>FOLLY_NO_CONFIG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;WINAPI_PARTITION_APP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedUsingFiles />
-      <DisableSpecificWarnings>4244;4251;4267;4293;4305;4800;4804;4310;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4646;4244;4251;4267;4293;4305;4800;4804;4310;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
     </ClCompile>
