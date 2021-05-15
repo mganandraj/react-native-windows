@@ -57,6 +57,7 @@
                 HorizontalAlignment="Stretch"
                 SelectionChanged="x_entryPointCombo_SelectionChanged">
                 <ComboBox.Items>
+                    <ComboBoxItem Content="Samples\perf" />
                     <ComboBoxItem Content="Samples\rntester" />
                     <ComboBoxItem Content="Samples\accessible" />
                     <ComboBoxItem Content="Samples\animation" />
@@ -93,8 +94,8 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center" >
                 <ComboBox.Items>
-                    <ComboBoxItem Content="RNTesterApp" />
                     <ComboBoxItem Content="Bootstrap" />
+                    <ComboBoxItem Content="RNTesterApp" />
                 </ComboBox.Items>
             </ComboBox>
         </Grid>
@@ -108,7 +109,7 @@
             <CheckBox x:Name="x_UseWebDebuggerCheckBox"
                 Margin="8,4,4,4"
                 VerticalAlignment="Center"
-                IsChecked="true"
+                IsChecked="false"
                 Checked="x_UseWebDebuggerCheckBox_Checked"
                 Unchecked="x_UseWebDebuggerCheckBox_Unchecked"
                 Content="Web Debugger"/>

@@ -49,6 +49,8 @@ void MainPage::OnLoadClick(
   } else {
     bundleFile = unbox_value<hstring>(x_entryPointCombo().SelectedItem());
   }
+  // bundleFile = L"index.windows";
+
   host.InstanceSettings().JavaScriptBundleFile(bundleFile);
 
   auto item = x_rootComponentNameCombo().SelectedItem();

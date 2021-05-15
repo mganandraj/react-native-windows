@@ -6,6 +6,7 @@
 #include <TraceLoggingProvider.h>
 #include <jsi/jsi.h>
 #include <winmeta.h>
+#include <Psapi.h>
 #include "tracing/fbsystrace.h"
 
 #include <array>
@@ -179,6 +180,21 @@ void initializeJSHooks(jsi::Runtime &runtime) {
   // If significant, this should be put under flag based on devsettings
 
   runtime.global().setProperty(runtime, "__RCTProfileIsProfiling", true);
+
+  runtime.global().setProperty(
+      runtime,
+      "nativeGetProcessMemoryInfo",
+      jsi::Function::createFromHostFunction(
+          runtime,
+          jsi::PropNameID::forAscii(runtime, "nativeTraceGetProcessWorkingSet"),
+          0,
+          [](jsi::Runtime &runtime, const jsi::Value &, const jsi::Value *jsargs, size_t count) -> jsi::Value {
+            PROCESS_MEMORY_COUNTERS memCounter;
+            GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+            jsi::Object obj(runtime);
+            obj.setProperty(runtime , "workingSet", jsi::Value(int(memCounter.WorkingSetSize)));
+            return obj;
+          }));
 
   runtime.global().setProperty(
       runtime,
