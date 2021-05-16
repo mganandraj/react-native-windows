@@ -246,6 +246,46 @@ export default class Bootstrap extends React.Component {
   constructor() {
     super();
     this.state = {child: ['xyz']}
+    this.socket = new WebSocket('ws://10.0.0.203:8080/');
+    this.queue = []
+    this.socket.onopen = () => {
+        // connection opened
+        // this.socket.send('something'); // send a message
+        // Alert.alert('opened');
+        this.socket.send('hello from RN app')
+      };
+      
+      this.socket.onmessage = (e) => {
+        // a message was received
+        Alert.alert(e.data);
+      };
+      
+      this.socket.onerror = (e) => {
+        // an error occurred
+        Alert.alert(e.message);
+      };
+      
+      this.socket.onclose = (e) => {
+        // connection closed
+        Alert.alert(e.code, e.reason);
+      };
+      
+  }
+
+  doSend(msg) {
+    if(this.socket.readyState != WebSocket.OPEN) {
+        this.queue.push(msg)
+        return;
+    }
+
+    if (this.queue.length >0 ) {
+        this.queue.forEach(function(item, index, array) {
+            this.socket.send(item)
+        }, this)
+        this.queue = []
+    }
+
+    this.socket.send(msg)
   }
 
   componentDidMount() {
@@ -255,6 +295,7 @@ export default class Bootstrap extends React.Component {
 
   componentDidUpdate() {
     host = this
+    this.doSend(JSON.stringify(nativeGetProcessMemoryInfo()))
     setTimeout(function () {
       host.state.child.push('cdef')
       host.setState({child: host.state.child})
@@ -269,7 +310,6 @@ export default class Bootstrap extends React.Component {
             {this.state.child.map(item => (
                 <Text style={styles.text}>
                     {item}
-                    {nativeGetProcessMemoryInfo().workingSet}
                 </Text>
                 // <Calculator />
             ))}           
