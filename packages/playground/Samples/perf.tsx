@@ -295,6 +295,13 @@ export default class Bootstrap extends React.Component {
 
   componentDidUpdate() {
     host = this
+    if (typeof(HermesInternal) === "undefined") {
+        this.doSend(JSON.stringify({engine: 'something else'}));
+      } else {
+        this.doSend(JSON.stringify({engine: 'hermes'}));
+        this.doSend(JSON.stringify({runtimeProps: JSON.stringify(HermesInternal.getRuntimeProperties())}));
+      }
+      
     this.doSend(JSON.stringify(nativeGetProcessMemoryInfo()))
     setTimeout(function () {
       host.state.child.push('cdef')

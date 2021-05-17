@@ -189,10 +189,19 @@ void initializeJSHooks(jsi::Runtime &runtime) {
           jsi::PropNameID::forAscii(runtime, "nativeTraceGetProcessWorkingSet"),
           0,
           [](jsi::Runtime &runtime, const jsi::Value &, const jsi::Value *jsargs, size_t count) -> jsi::Value {
-            PROCESS_MEMORY_COUNTERS memCounter;
-            GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter));
+            PROCESS_MEMORY_COUNTERS_EX memCounter;
+            GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&memCounter, sizeof(memCounter));
             jsi::Object obj(runtime);
-            obj.setProperty(runtime , "workingSet", jsi::Value(int(memCounter.WorkingSetSize)));
+            obj.setProperty(runtime, "PeakWorkingSetSize", jsi::Value(int(memCounter.PeakWorkingSetSize)));
+            obj.setProperty(runtime, "WorkingSetSize", jsi::Value(int(memCounter.WorkingSetSize)));
+            obj.setProperty(runtime, "QuotaPeakPagedPoolUsage", jsi::Value(int(memCounter.QuotaPeakPagedPoolUsage)));
+            obj.setProperty(runtime, "QuotaPagedPoolUsage", jsi::Value(int(memCounter.QuotaPagedPoolUsage)));
+            obj.setProperty(
+                runtime, "QuotaPeakNonPagedPoolUsage", jsi::Value(int(memCounter.QuotaPeakNonPagedPoolUsage)));
+            obj.setProperty(runtime, "QuotaNonPagedPoolUsage", jsi::Value(int(memCounter.QuotaNonPagedPoolUsage)));
+            obj.setProperty(runtime, "PagefileUsage", jsi::Value(int(memCounter.PagefileUsage)));
+            obj.setProperty(runtime, "PeakPagefileUsage", jsi::Value(int(memCounter.PeakPagefileUsage)));
+            obj.setProperty(runtime, "PrivateUsage", jsi::Value(int(memCounter.PrivateUsage)));
             return obj;
           }));
 
