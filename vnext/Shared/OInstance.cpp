@@ -162,7 +162,14 @@ class OJSIExecutorFactory : public JSExecutorFactory {
     } else {
       logger = [loggingHook = std::move(loggingHook_)](const std::string & /*message*/, unsigned int /*logLevel*/) {};
     }
+
+    PerformanceNow performanceNow = []() {
+      return (double)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono ::system_clock::now().time_since_epoch())
+          .count();
+    };
+
     bindNativeLogger(*runtimeHolder_->getRuntime(), logger);
+    bindNativePerformanceNow(*runtimeHolder_->getRuntime(), performanceNow);
 
     auto turboModuleManager = std::make_shared<TurboModuleManager>(turboModuleRegistry_, jsCallInvoker_);
 
@@ -289,7 +296,7 @@ InstanceImpl::InstanceImpl(
 
 #ifdef ENABLE_ETW_TRACING
   // TODO :: Find a better place to initialize ETW once per process.
-  facebook::react::tracing::initializeETW();
+  facebook::react::tracing::initializeETW(m_devSettings->jsiRuntimeHolder, m_devSettings->jsiEngineOverride);
 #endif
 
   if (m_devSettings->useDirectDebugger && !m_devSettings->useWebDebugger) {

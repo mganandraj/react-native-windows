@@ -163,7 +163,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <PropertyGroup>
-    <BundleEntryFile>Samples/rntester.tsx</BundleEntryFile>
+    <BundleEntryFile>Samples/perf.tsx</BundleEntryFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>

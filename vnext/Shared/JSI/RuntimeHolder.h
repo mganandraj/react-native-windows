@@ -15,6 +15,7 @@ namespace jsi {
 
 struct RuntimeHolderLazyInit {
   virtual std::shared_ptr<facebook::jsi::Runtime> getRuntime() noexcept = 0;
+  virtual std::string getName() noexcept = 0;
 };
 
 } // namespace jsi

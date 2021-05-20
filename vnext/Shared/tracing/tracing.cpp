@@ -5,9 +5,13 @@
 
 #include <TraceLoggingProvider.h>
 #include <jsi/jsi.h>
+#include <jsi/RuntimeHolder.h>
 #include <winmeta.h>
 #include <Psapi.h>
 #include "tracing/fbsystrace.h"
+
+#include <WinRTWebSocketResource.h>
+#include <DevSettings.h>
 
 #include <array>
 #include <string>
@@ -175,6 +179,10 @@ void counterJSHook(uint64_t tag, const std::string &profile_name, int value) {
       TraceLoggingInt64(value, "value"));
 }
 
+std::string g_engine, g_when, g_flavor, g_arch;
+uint64_t g_startTimeStamp;
+
+
 void initializeJSHooks(jsi::Runtime &runtime) {
   // TODO:: Assess the performance impact of hooking up the JS trace events. Especially when the tracing is not enabled.
   // If significant, this should be put under flag based on devsettings
@@ -192,6 +200,20 @@ void initializeJSHooks(jsi::Runtime &runtime) {
             PROCESS_MEMORY_COUNTERS_EX memCounter;
             GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&memCounter, sizeof(memCounter));
             jsi::Object obj(runtime);
+
+            obj.setProperty(
+                runtime,
+                "StartTimeStamp",
+                jsi::Value((double)g_startTimeStamp)); // We use startTimeStamp as session id.
+
+            uint64_t timeStamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                   std::chrono ::system_clock::now().time_since_epoch())
+                                   .count();
+            obj.setProperty(
+                runtime,
+                "TimeStamp",
+                jsi::Value((double)timeStamp)); // We use startTimeStamp as session id.
+
             obj.setProperty(runtime, "PeakWorkingSetSize", jsi::Value(int(memCounter.PeakWorkingSetSize)));
             obj.setProperty(runtime, "WorkingSetSize", jsi::Value(int(memCounter.WorkingSetSize)));
             obj.setProperty(runtime, "QuotaPeakPagedPoolUsage", jsi::Value(int(memCounter.QuotaPeakPagedPoolUsage)));
@@ -203,6 +225,31 @@ void initializeJSHooks(jsi::Runtime &runtime) {
             obj.setProperty(runtime, "PeakPagefileUsage", jsi::Value(int(memCounter.PeakPagefileUsage)));
             obj.setProperty(runtime, "PrivateUsage", jsi::Value(int(memCounter.PrivateUsage)));
             return obj;
+          }));
+
+  runtime.global().setProperty(
+      runtime,
+      "nativeGetPrologue",
+      jsi::Function::createFromHostFunction(
+          runtime,
+          jsi::PropNameID::forAscii(runtime, "nativeGetPrologue"),
+          0,
+          [](jsi::Runtime &runtime, const jsi::Value &, const jsi::Value *jsargs, size_t count) -> jsi::Value {
+            
+            std::string json = "{\"JsEngine\":\"";
+              json += g_engine;
+              json += "\", \"StartTimeStamp\":";
+              json += std::to_string(g_startTimeStamp);
+              json += ", \"When\":\"";
+              json += g_when;
+              json += "\", \"Arch\":\"";
+              json += g_arch;
+              json += "\", \"Flavor\":\"";
+              json += g_flavor;
+              json += "\"}";
+
+            jsi::Value val = jsi::Value::createFromJsonUtf8(runtime, (const uint8_t*)json.c_str(), json.size());
+            return val;            
           }));
 
   runtime.global().setProperty(
@@ -400,15 +447,6 @@ void initializeJSHooks(jsi::Runtime &runtime) {
           }));
 }
 
-void initializeETW() {
-  // Register the provider
-  static bool etwInitialized = false;
-  if (!etwInitialized) {
-    TraceLoggingRegister(g_hTraceLoggingProvider);
-    etwInitialized = true;
-  }
-}
-
 void log(const char *msg) {
   TraceLoggingWrite(
       g_hTraceLoggingProvider, "Trace", TraceLoggingLevel(WINEVENT_LEVEL_INFO), TraceLoggingString(msg, "message"));
@@ -417,6 +455,59 @@ void log(const char *msg) {
 void error(const char *msg) {
   TraceLoggingWrite(
       g_hTraceLoggingProvider, "Trace", TraceLoggingLevel(WINEVENT_LEVEL_ERROR), TraceLoggingString(msg, "message"));
+}
+
+void initializeETW(
+    std::shared_ptr<jsi::RuntimeHolderLazyInit> runtimeHolder,
+    facebook::react::JSIEngineOverride jsiEngine) {
+  // Register the provider
+  static bool etwInitialized = false;
+  if (!etwInitialized) {
+    TraceLoggingRegister(g_hTraceLoggingProvider);
+    etwInitialized = true;
+
+    std::chrono::system_clock::time_point p = std::chrono::system_clock::now();
+    time_t t = std::chrono::system_clock::to_time_t(p);
+    char time_str[26];
+    ctime_s(time_str, sizeof time_str, &t);
+    g_when = time_str;
+    g_when.erase(std::remove(g_when.begin(), g_when.end(), '\n'), g_when.end());
+
+
+    g_startTimeStamp =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono ::system_clock::now().time_since_epoch())
+            .count();
+    if (runtimeHolder) {
+      g_engine = runtimeHolder->getName();
+    } else {
+      switch (jsiEngine) {
+        case facebook::react::JSIEngineOverride::Hermes:
+          g_engine = "Hermes";
+          break;
+        case facebook::react::JSIEngineOverride::V8:
+          g_engine = "V8";
+          break;
+        case facebook::react::JSIEngineOverride::Default:
+        case facebook::react::JSIEngineOverride::Chakra:
+          g_engine = "Chakra";
+          break;
+      }
+    }
+
+#if !defined(NDEBUG)
+    g_flavor += "Debug";
+#else
+    g_flavor += "Release";
+#endif
+
+#if defined(_WIN64)
+    g_arch += "64-bit";
+#else
+    g_arch += "32-bit";
+#endif
+
+
+  }
 }
 
 } // namespace tracing

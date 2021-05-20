@@ -156,6 +156,13 @@ class TaskRunnerAdapter : public v8runtime::JSITaskRunner {
   std::shared_ptr<ReactQueueBackedTaskRunner> taskRunner_;
 };
 
+std::string V8JSIRuntimeHolder::getName() noexcept {
+  if (preparedScriptStore_)
+    return std::string("V8 with Caching");
+  else
+    return std::string("V8");
+}
+
 std::shared_ptr<facebook::jsi::Runtime> V8JSIRuntimeHolder::getRuntime() noexcept {
   std::call_once(once_flag_, [this]() { initRuntime(); });
 

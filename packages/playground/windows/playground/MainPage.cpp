@@ -34,7 +34,7 @@ MainPage::MainPage() {
   x_engineHermes().IsEnabled(true);
   x_engineV8().IsEnabled(true);
 
-  x_JsEngine().SelectedIndex(1);
+  x_JsEngine().SelectedIndex(2);
 }
 
 void MainPage::OnLoadClick(
@@ -49,7 +49,7 @@ void MainPage::OnLoadClick(
   } else {
     bundleFile = unbox_value<hstring>(x_entryPointCombo().SelectedItem());
   }
-  // bundleFile = L"index.windows";
+  bundleFile = L"index.windows";
 
   host.InstanceSettings().JavaScriptBundleFile(bundleFile);
 

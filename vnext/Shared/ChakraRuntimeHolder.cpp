@@ -9,6 +9,10 @@
 
 namespace Microsoft::JSI {
 
+std::string ChakraRuntimeHolder::getName() noexcept {
+  return std::string("Chakra");
+}
+
 std::shared_ptr<facebook::jsi::Runtime> ChakraRuntimeHolder::getRuntime() noexcept {
   std::call_once(once_flag_, [this]() { initRuntime(); });
 

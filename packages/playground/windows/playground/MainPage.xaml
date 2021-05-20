@@ -127,7 +127,7 @@
             <CheckBox x:Name="x_UseFastRefreshCheckBox"
                 Margin="4"
                 VerticalAlignment="Center"
-                IsChecked="true"
+                IsChecked="false"
                 Content="Fast Refresh"/>
             <TextBlock
                 Margin="4"
@@ -145,7 +145,7 @@
                 Text="JS Engine:"/>
             <ComboBox
                 x:Name="x_JsEngine"
-                IsEnabled="false"
+                IsEnabled="true"
                 Margin="4"
                 MinWidth="150"
                 HorizontalAlignment="Stretch"
