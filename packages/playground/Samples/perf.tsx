@@ -18873,7 +18873,8 @@ class Calculator99 extends React.Component {
 }
 
 // var Calcs=[Calculator0, Calculator1, Calculator2, Calculator3, Calculator4, Calculator5, Calculator6, Calculator7, Calculator8, Calculator9, Calculator10, Calculator11, Calculator12, Calculator13, Calculator14, Calculator15, Calculator16, Calculator17, Calculator18, Calculator19, Calculator20, Calculator21, Calculator22, Calculator23, Calculator24, Calculator25, Calculator26, Calculator27, Calculator28, Calculator29, Calculator30, Calculator31, Calculator32, Calculator33, Calculator34, Calculator35, Calculator36, Calculator37, Calculator38, Calculator39, Calculator40, Calculator41, Calculator42, Calculator43, Calculator44, Calculator45, Calculator46, Calculator47, Calculator48, Calculator49, Calculator50, Calculator51, Calculator52, Calculator53, Calculator54, Calculator55, Calculator56, Calculator57, Calculator58, Calculator59, Calculator60, Calculator61, Calculator62, Calculator63, Calculator64, Calculator65, Calculator66, Calculator67, Calculator68, Calculator69, Calculator70, Calculator71, Calculator72, Calculator73, Calculator74, Calculator75, Calculator76, Calculator77, Calculator78, Calculator79, Calculator80, Calculator81, Calculator82, Calculator83, Calculator84, Calculator85, Calculator86, Calculator87, Calculator88, Calculator89, Calculator90, Calculator91, Calculator92, Calculator93, Calculator94, Calculator95, Calculator96, Calculator97, Calculator98, Calculator99];
-var Calcs=[Calculator0, Calculator1, Calculator2];
+// var Calcs=[Calculator0, Calculator1, Calculator2, Calculator3, Calculator4, Calculator5, Calculator6, Calculator7, Calculator8, Calculator9, Calculator10];
+var Calcs=[Calculator0, Calculator1, Calculator2, Calculator3, Calculator4, Calculator5, Calculator6, Calculator7, Calculator8, Calculator9, Calculator10, Calculator11, Calculator12, Calculator13, Calculator14, Calculator15, Calculator16, Calculator17, Calculator18, Calculator19, Calculator20, Calculator21, Calculator22, Calculator23, Calculator24, Calculator25, Calculator26, Calculator27, Calculator28, Calculator29, Calculator30, Calculator31, Calculator32, Calculator33, Calculator34, Calculator35, Calculator36, Calculator37, Calculator38, Calculator39, Calculator40, Calculator41, Calculator42, Calculator43, Calculator44, Calculator45, Calculator46, Calculator47, Calculator48, Calculator49, Calculator50];
 
 export default class Bootstrap extends React.Component {
   constructor() {
@@ -18888,6 +18889,10 @@ export default class Bootstrap extends React.Component {
     this.socket.onclose = (e) => {};
   }
 
+  doSend2(msg) {
+    this.socket.send(msg)
+  }
+
   doSend(msg) {
     if(this.socket.readyState != WebSocket.OPEN) {
         this.queue.push(msg)
@@ -18896,12 +18901,12 @@ export default class Bootstrap extends React.Component {
 
     if (this.queue.length >0 ) {
         this.queue.forEach(function(item, index, array) {
-            this.socket.send(item)
+            this.doSend2(item)
         }, this)
         this.queue = []
     }
 
-    this.socket.send(msg)
+    this.doSend2(msg)
   }
 
   componentDidMount() {
@@ -18909,29 +18914,32 @@ export default class Bootstrap extends React.Component {
     var notes = {};
     if(global.HermesInternal) {
         notes['HermesInternalRuntimeProps'] = global.HermesInternal.getRuntimeProperties();
+        // notes['HBCCommand'] = '-O -output-source-map';
+        notes['HBCCommand'] = '-O -output-source-map AllocInOld';
+        // notes['HBCCommand'] = '-O -output-source-map -fstrip-function-names -Wno-undefined-variable -non-strict -fno-enable-tdz'
     }
     
     prologue['notes'] = notes;
     this.doSend(JSON.stringify(prologue));
-
-    let memInfo = nativeGetProcessMemoryInfo();
+    let memInfo2 = nativeGetProcessMemoryInfo();
+    let memInfo = { ...memInfo2 }
     memInfo['step'] = this.state.numCalcs;
     memInfo['TimeFromStart'] = memInfo['TimeStamp'] - memInfo['StartTimeStamp'];
     this.doSend(JSON.stringify(memInfo));
-
     this.setState({numCalcs: this.state.numCalcs + 1})
   }
 
   componentDidUpdate() {
     host = this
-    let memInfo = nativeGetProcessMemoryInfo();
+    let memInfo2= nativeGetProcessMemoryInfo();
+    let memInfo = { ...memInfo2 }
     memInfo['step'] = host.state.numCalcs;
     memInfo['TimeFromStart'] = memInfo['TimeStamp'] - memInfo['StartTimeStamp'];
-    this.doSend(JSON.stringify(memInfo));
+    host.doSend(JSON.stringify(memInfo));
     if(host.state.numCalcs < Calcs.length) {
         setTimeout(function () {
             host.setState({numCalcs: Math.min(Calcs.length, host.state.numCalcs + 1)})
-        }, 100);
+        }, 0);
     }
   }
 
