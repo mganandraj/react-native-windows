@@ -83,7 +83,7 @@ class DevServerHelper {
   }
 
   static constexpr const char DeviceLocalHostFormat[] = "%s:%d";
-  static constexpr const char BundleUrlFormat[] = "http://%s/%s.bundle?platform=%s&dev=%s&hot=%s&inlineSourceMap=%s";
+  static constexpr const char BundleUrlFormat[] = "http://%s/%s.bundle?platform=%s&dev=%s&hot=%s&inlineSourceMap=%s&runtimeBytecodeVersion=83";
   static constexpr const char SourceMapUrlFormat[] = "http://%s/%s.map?platform=%s&dev=%s&hot=%s";
   static constexpr const char LaunchDevToolsCommandUrlFormat[] = "http://%s/launch-js-devtools";
   static constexpr const char OnChangeEndpointUrlFormat[] = "http://%s/onchange";

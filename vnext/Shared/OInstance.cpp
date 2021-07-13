@@ -9,7 +9,10 @@
 #include <cxxreact/JSBigString.h>
 #include <cxxreact/JSExecutor.h>
 #include <cxxreact/ReactMarker.h>
+#include <cxxreact/RecoverableError.h>
+#include <cxxreact/JsBundleType.h>
 #include <folly/json.h>
+#include <folly/Bits.h>
 #include <jsi/jsi.h>
 #include <jsiexecutor/jsireact/JSIExecutor.h>
 #include <filesystem>
@@ -424,6 +427,16 @@ void InstanceImpl::loadBundleSync(std::string &&jsBundleRelativePath) {
   loadBundleInternal(std::move(jsBundleRelativePath), /*synchronously:*/ true);
 }
 
+bool isHBCBundle(const std::string& bundle) {
+  static uint32_t constexpr HBCBundleMagicNumber = 0xffe7c3c3;
+  BundleHeader *header = reinterpret_cast<BundleHeader *>(const_cast<char*>(bundle.c_str()));
+  if (HBCBundleMagicNumber == folly::Endian::little(header->magic)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void InstanceImpl::loadBundleInternal(std::string &&jsBundleRelativePath, bool synchronously) {
   try {
     if (m_devSettings->useWebDebugger || m_devSettings->liveReloadCallback != nullptr ||
@@ -460,11 +473,34 @@ void InstanceImpl::loadBundleInternal(std::string &&jsBundleRelativePath, bool s
           /*hot*/ false,
           m_devSettings->inlineSourceMap);
 
-      // Remote debug executor loads script from a Uri, rather than taking the actual bundle string
-      m_innerInstance->loadScriptFromString(
-          std::make_unique<const JSBigStdString>(m_devSettings->useWebDebugger ? bundleUrl : jsBundleString),
-          bundleUrl,
-          synchronously);
+      if (isHBCBundle(jsBundleString.c_str())) {
+        std::unique_ptr<const JSBigString> script;
+        RecoverableError::runRethrowingAsRecoverable<std::system_error>(
+            [&jsBundleString, &script]() { script = std::make_unique<JSBigStdString>(jsBundleString, false); });
+
+        const char *buffer = script->c_str();
+        uint32_t bufferLength = (uint32_t)script->size();
+        uint32_t offset = 8;
+        while (offset < bufferLength) {
+          uint32_t segment = offset + 4;
+          uint32_t moduleLength = bufferLength < segment ? 0 : *(((uint32_t *)buffer) + offset / 4);
+
+          m_innerInstance->loadScriptFromString(
+              std::make_unique<const JSBigStdString>(std::string(buffer + segment, buffer + moduleLength + segment)),
+              bundleUrl,
+              false);
+
+          offset += ((moduleLength + 3) & ~3) + 4;
+        }
+      }
+      else 
+      {
+        // Remote debug executor loads script from a Uri, rather than taking the actual bundle string
+        m_innerInstance->loadScriptFromString(
+            std::make_unique<const JSBigStdString>(m_devSettings->useWebDebugger ? bundleUrl : jsBundleString),
+            bundleUrl,
+            synchronously);
+      }
     } else {
 #if (defined(_MSC_VER) && !defined(WINRT))
       auto fullBundleFilePath = GetJSBundleFilePath(m_jsBundleBasePath, jsBundleRelativePath);
